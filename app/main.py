@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import logging
 
 from fastapi import FastAPI
@@ -7,32 +8,73 @@ from app.config.logging import setup_logging
 from app.config.settings import settings
 from app.db.database import Base
 from app.db.database import engine
+import app.db.models
 
-# import app.db.models  
+from app.providers.embedding_provider import EmbeddingProvider
+# from app.providers.llm import LLMProvider
+from app.providers.redis_memory import RedisMemory
+from app.providers.vector_store import VectorStore
 
 
 setup_logging()
 
 logger = logging.getLogger(__name__)
 
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    logger.info("Creating database tables...")
+
+    Base.metadata.create_all(bind=engine)
+
+    logger.info("Loading embedding model...")
+
+    app.state.embedding = EmbeddingProvider(
+        settings.embedding_model
+    )
+
+    logger.info("Connecting Redis...")
+
+    app.state.redis = RedisMemory(
+        settings.redis_host,
+        settings.redis_port,
+    )
+
+    logger.info("Connecting Qdrant...")
+
+    app.state.vector_store = VectorStore(
+        host=settings.qdrant_host,
+        port=settings.qdrant_port,
+        collection_name=settings.qdrant_collection,
+        vector_size=384,
+    )
+
+    logger.info("Initializing OpenAI client...")
+
+    # app.state.llm = LLMProvider(
+    #     settings.openai_api_key
+    # )
+
+    logger.info("Application ready.")
+
+    yield
+
+    logger.info("Shutting down application...")
+
 
 app = FastAPI(
     title=settings.app_name,
     version="1.0.0",
+    lifespan=lifespan,
 )
-
-
-@app.on_event("startup")
-async def startup():
-    logger.info("Application started successfully")
-
 
 app.include_router(health_router)
 
 
 @app.get("/")
 async def root():
+
     return {
         "message": "Document RAG Backend is running"
     }
