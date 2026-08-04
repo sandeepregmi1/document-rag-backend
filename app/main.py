@@ -1,9 +1,31 @@
+import logging
+
 from fastapi import FastAPI
 
+from app.api.health import router as health_router
+from app.config.logging import setup_logging
+from app.config.settings import settings
+from app.db.database import Base
+from app.db.database import engine
+
+setup_logging()
+
+logger = logging.getLogger(__name__)
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
-    title="Document RAG Backend",
+    title=settings.app_name,
     version="1.0.0",
 )
+
+
+@app.on_event("startup")
+async def startup():
+    logger.info("Application started successfully")
+
+
+app.include_router(health_router)
 
 
 @app.get("/")
