@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from datetime import datetime, date, time
 from sqlalchemy import Date
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -67,9 +66,9 @@ class Booking(Base):
 
     email: Mapped[str] = mapped_column(String(255))
 
-    date: Mapped[Date]
+    date: Mapped[date] = mapped_column(Date)
 
-    time: Mapped[Time]
+    time: Mapped[time] = mapped_column(Time)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,

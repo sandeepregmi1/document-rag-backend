@@ -8,6 +8,9 @@ from app.config.settings import settings
 from app.db.database import Base
 from app.db.database import engine
 
+# import app.db.models  
+
+
 setup_logging()
 
 logger = logging.getLogger(__name__)
