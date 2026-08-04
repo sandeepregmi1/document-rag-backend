@@ -1,3 +1,4 @@
+# /home/sandeep/Projects/document-rag-backend/app/providers/vector_store.py
 from uuid import uuid4
 
 from qdrant_client import QdrantClient
