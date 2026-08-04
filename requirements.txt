@@ -1,0 +1,26 @@
+fastapi
+uvicorn[standard]
+
+sqlalchemy
+pydantic
+pydantic-settings
+
+python-dotenv
+
+redis
+
+qdrant-client
+
+# sentence-transformers
+
+pymupdf
+
+python-multipart
+
+openai
+
+httpx
+
+pytest
+
+loguru
