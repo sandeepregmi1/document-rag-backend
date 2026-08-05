@@ -33,7 +33,12 @@ class ChatResponse(BaseModel):
     """
 
     answer: str
-    sources: list[Source]
+
+    sources: list[Source] = []
+
+    is_booking: bool = False
+
+    history_size: int
 
 
 class ChatMessage(BaseModel):

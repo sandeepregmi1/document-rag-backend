@@ -33,5 +33,7 @@ def chat(
 
     return ChatResponse(
         answer=result["answer"],
-        sources=result["sources"],
+        sources=result.get("sources", []),
+        is_booking=result.get("is_booking", False),
+        history_size=result.get("history_size", 0),
     )
