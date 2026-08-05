@@ -835,5 +835,3 @@ All providers (embedding model, Qdrant client, Redis client, LLM client) are ini
 Using the declarative ORM with typed `Mapped` columns (SQLAlchemy 2.x style) provides full type safety, relationship management, and easy migration support, while keeping the codebase clean and maintainable.
 
 ---
-
-*Built by Sandeep Regmi — AI/ML Intern Assignment for Palm Mind AI.*
