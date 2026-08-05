@@ -45,3 +45,40 @@ def save_booking(
     db.refresh(booking)
 
     return booking
+
+def get_documents(
+    db: Session,
+) -> list[Document]:
+    return db.query(Document).all()
+
+
+def get_document(
+    db: Session,
+    document_id: int,
+) -> Document | None:
+    return (
+        db.query(Document)
+        .filter(Document.id == document_id)
+        .first()
+    )
+
+
+def delete_document(
+    db: Session,
+    document: Document,
+) -> None:
+    db.delete(document)
+    db.commit()
+
+
+def get_chunk_metadata(
+    db: Session,
+    document_id: int,
+) -> list[ChunkMetadata]:
+    return (
+        db.query(ChunkMetadata)
+        .filter(
+            ChunkMetadata.document_id == document_id
+        )
+        .all()
+    )

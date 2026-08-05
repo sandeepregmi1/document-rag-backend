@@ -11,9 +11,14 @@ from app.db.database import engine
 import app.db.models
 
 from app.providers.embedding_provider import EmbeddingProvider
-# from app.providers.llm import LLMProvider
+from app.providers.llm import LLMProvider
 from app.providers.redis_memory import RedisMemory
 from app.providers.vector_store import VectorStore
+
+from app.api.upload import router as upload_router
+from app.api.chat import router as chat_router
+from app.api.document import router as document_router
+
 
 
 setup_logging()
@@ -52,9 +57,10 @@ async def lifespan(app: FastAPI):
 
     logger.info("Initializing OpenAI client...")
 
-    # app.state.llm = LLMProvider(
-    #     settings.openai_api_key
-    # )
+    app.state.llm = LLMProvider(
+        settings.groq_api_key,
+    )
+    app.state.model = settings.groq_model
 
     logger.info("Application ready.")
 
@@ -70,6 +76,10 @@ app = FastAPI(
 )
 
 app.include_router(health_router)
+app.include_router(upload_router)
+app.include_router(chat_router)
+app.include_router(document_router)
+
 
 
 @app.get("/")
