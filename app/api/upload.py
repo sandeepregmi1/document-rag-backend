@@ -15,6 +15,8 @@ from app.api.dependencies import get_upload_service
 from app.schemas.upload import UploadResponse
 from app.services.upload import UploadService
 
+from app.services.chunker import ChunkStrategy
+
 router = APIRouter(
     prefix="/upload",
     tags=["Upload"],
@@ -27,7 +29,8 @@ router = APIRouter(
 )
 async def upload_document(
     file: UploadFile = File(...),
-    chunk_strategy: str = Form("fixed"),
+    chunk_strategy: ChunkStrategy = Form( default=ChunkStrategy.FIXED
+),
     upload_service: UploadService = Depends(
         get_upload_service
     ),

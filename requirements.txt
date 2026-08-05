@@ -11,7 +11,7 @@ redis
 
 qdrant-client
 
-# sentence-transformers
+sentence-transformers
 
 pymupdf
 
