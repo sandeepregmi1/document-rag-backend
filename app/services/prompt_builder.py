@@ -1,3 +1,4 @@
+
 from typing import Any
 
 
@@ -9,7 +10,8 @@ class PromptBuilder:
     DEFAULT_SYSTEM_PROMPT = (
         "You are a helpful AI assistant. "
         "Answer the user's question using only the provided context. "
-        "If the answer is not present in the context, say that you do not know."
+        "If the answer is not present in the context, "
+        "say that you do not know."
     )
 
     def build(
@@ -19,7 +21,15 @@ class PromptBuilder:
         system_prompt: str | None = None,
     ) -> str:
         """
-        Build a complete prompt for the LLM.
+        Build a complete prompt for the language model.
+
+        Args:
+            question: User question.
+            contexts: Retrieved document chunks.
+            system_prompt: Optional custom system prompt.
+
+        Returns:
+            Complete prompt string.
         """
 
         prompt_system = (
@@ -51,13 +61,11 @@ class PromptBuilder:
 
         lines: list[str] = []
 
-        for index, item in enumerate(contexts, start=1):
+        for item in contexts:
 
-            payload = item["payload"]
-
-            document_id = payload["document_id"]
-            chunk_number = payload["chunk_number"]
-            text = payload["text"]
+            document_id = item.get("document_id", "Unknown")
+            chunk_number = item.get("chunk_number", "Unknown")
+            text = item.get("text", "")
 
             lines.append(
                 (

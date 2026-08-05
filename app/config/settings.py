@@ -8,8 +8,9 @@ class Settings(BaseSettings):
     app_name: str = "Document RAG Backend"
     debug: bool = True
 
-    # OpenAI
-    openai_api_key: str
+    # GROQ
+    groq_api_key: str
+    groq_model: str = "llama-3.3-70b-versatile"
 
     # Database
     database_url: str

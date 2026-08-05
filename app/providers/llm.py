@@ -1,25 +1,37 @@
-from openai import OpenAI
+from groq import Groq
 
 
 class LLMProvider:
+    """
+    Wrapper around the Groq API.
+    """
 
     def __init__(
         self,
         api_key: str,
-    ):
-        self.client = OpenAI(
+    ) -> None:
+
+        self.client = Groq(
             api_key=api_key,
         )
 
     def generate(
         self,
         prompt: str,
-        model: str = "gpt-4.1-mini",
+        model: str,
     ) -> str:
+        """
+        Generate a response from the language model.
+        """
 
-        response = self.client.responses.create(
+        response = self.client.chat.completions.create(
             model=model,
-            input=prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
         )
 
-        return response.output_text
+        return response.choices[0].message.content
