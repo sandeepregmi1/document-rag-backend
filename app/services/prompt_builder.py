@@ -1,4 +1,3 @@
-
 from typing import Any
 
 
@@ -10,26 +9,18 @@ class PromptBuilder:
     DEFAULT_SYSTEM_PROMPT = (
         "You are a helpful AI assistant. "
         "Answer the user's question using only the provided context. "
-        "If the answer is not present in the context, "
-        "say that you do not know."
+        "If the answer is not present in the context, say that you do not know."
     )
 
     def build(
         self,
         question: str,
         contexts: list[dict[str, Any]],
+        history: list[dict] | None = None,
         system_prompt: str | None = None,
     ) -> str:
         """
-        Build a complete prompt for the language model.
-
-        Args:
-            question: User question.
-            contexts: Retrieved document chunks.
-            system_prompt: Optional custom system prompt.
-
-        Returns:
-            Complete prompt string.
+        Build final prompt.
         """
 
         prompt_system = (
@@ -38,40 +29,61 @@ class PromptBuilder:
             else self.DEFAULT_SYSTEM_PROMPT
         )
 
-        context_text = self._build_context(contexts)
+        history_text = self._build_history(
+            history or []
+        )
+
+        context_text = self._build_context(
+            contexts
+        )
 
         return (
             f"{prompt_system}\n\n"
+            f"Conversation History:\n"
+            f"{history_text}\n\n"
             f"Context:\n"
             f"{context_text}\n\n"
             f"Question:\n"
             f"{question}"
         )
 
+    def _build_history(
+        self,
+        history: list[dict],
+    ) -> str:
+
+        if not history:
+            return "No previous conversation."
+
+        lines = []
+
+        for item in history:
+            role = item["role"]
+            content = item["content"]
+
+            lines.append(
+                f"{role}: {content}"
+            )
+
+        return "\n".join(lines)
+
     def _build_context(
         self,
         contexts: list[dict[str, Any]],
     ) -> str:
-        """
-        Format retrieved chunks into a readable context block.
-        """
 
         if not contexts:
             return "No relevant context found."
 
-        lines: list[str] = []
+        lines = []
 
         for item in contexts:
 
-            document_id = item.get("document_id", "Unknown")
-            chunk_number = item.get("chunk_number", "Unknown")
-            text = item.get("text", "")
-
             lines.append(
                 (
-                    f"[Document {document_id} | "
-                    f"Chunk {chunk_number}]\n"
-                    f"{text}"
+                    f"[Document {item['document_id']} | "
+                    f"Chunk {item['chunk_number']}]\n"
+                    f"{item['text']}"
                 )
             )
 

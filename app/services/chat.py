@@ -1,37 +1,39 @@
-from app.providers.embedding_provider import EmbeddingProvider
 from app.providers.llm import LLMProvider
-from app.providers.vector_store import VectorStore
+from app.providers.redis_memory import RedisMemory
 from app.services.prompt_builder import PromptBuilder
 from app.services.retriever import Retriever
 
 
 class ChatService:
-    """
-    End-to-end RAG chat service.
-    """
 
     def __init__(
         self,
         retriever: Retriever,
         prompt_builder: PromptBuilder,
         llm: LLMProvider,
+        redis_memory: RedisMemory,
         model: str,
     ) -> None:
 
         self.retriever = retriever
         self.prompt_builder = prompt_builder
         self.llm = llm
+        self.redis_memory = redis_memory
         self.model = model
 
     def ask(
         self,
+        session_id: str,
         question: str,
         top_k: int = 5,
     ) -> dict:
         """
-        Retrieve context, build prompt,
-        generate an answer, and return sources.
+        Complete RAG flow with memory.
         """
+
+        history = self.redis_memory.load_history(
+            session_id=session_id,
+        )
 
         contexts = self.retriever.retrieve(
             query=question,
@@ -41,6 +43,7 @@ class ChatService:
         prompt = self.prompt_builder.build(
             question=question,
             contexts=contexts,
+            history=history,
         )
 
         answer = self.llm.generate(
@@ -48,7 +51,20 @@ class ChatService:
             model=self.model,
         )
 
+        self.redis_memory.save_message(
+            session_id=session_id,
+            role="user",
+            content=question,
+        )
+
+        self.redis_memory.save_message(
+            session_id=session_id,
+            role="assistant",
+            content=answer,
+        )
+
         return {
             "answer": answer,
             "sources": contexts,
+            "history_size": len(history) + 2,
         }
